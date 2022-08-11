@@ -82,6 +82,9 @@ const config = {
           hideable: true,
         },
       },
+      tableOfContents: {
+        maxHeadingLevel: 5,
+      },
       footer: {
         style: "dark",
         links: [
