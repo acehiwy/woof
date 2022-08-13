@@ -26,9 +26,9 @@ Headers will show up on the table of contents on the upper right
 
 So that your users will know what this page is all about without scrolling down or even without reading too much.
 
-<span style={{ color: "var(--secondary-font-color)" }}>
+<Color color="var(--secondary-font-color)">
   Only h2 and h3 will be in the TOC by default.
-</span>
+</Color>
 
 You can configure the TOC heading levels either per-document or in the theme configuration.
 
@@ -42,8 +42,8 @@ With `{#custom-id}` syntax you can set your own header ID.
 
 :::note
 
-All files prefixed with an underscore (`_`) <span style={{ color:'var(--secondary-font-color)' }}> under the docs directory </span> are treated as "partial" pages
-and <span style={{ color:'var(--secondary-font-color)' }}> will be ignored by default </span>.
+All files prefixed with an underscore (`_`) <Color color='var(--secondary-font-color)'> under the docs directory </Color> are treated as "partial" pages
+and <Color color='var(--secondary-font-color)'> will be ignored by default </Color>.
 
 Read more about [importing partial pages](https://docusaurus.io/docs/markdown-features/react#importing-markdown).
 
@@ -51,7 +51,7 @@ Read more about [importing partial pages](https://docusaurus.io/docs/markdown-fe
 
 ## Doc Front Matter
 
-The front matter is used to <span style={{ color:'var(--secondary-font-color)' }}> provide additional metadata for your doc </span> page.
+The front matter is used to <Color color='var(--secondary-font-color)'> provide additional metadata for your doc </Color> page.
 
 Front matter is optional. Docusaurus will be able to infer all necessary metadata without the front matter.
 
@@ -99,7 +99,7 @@ However, most of them can be decoupled from the file structure.
 
 ### Document ID
 
-Every document has a unique id. By default, a document id is the <span style={{ color:'var(--secondary-font-color)' }}> name of the document </span> (without the extension) relative to the root docs directory.
+Every document has a unique id. By default, a document id is the <Color color='var(--secondary-font-color)'> name of the document </Color> (without the extension) relative to the root docs directory.
 
 For example, the ID of `greeting.md` is "greeting", and the ID of `guide/hello.md` is "guide/hello".
 
@@ -111,7 +111,7 @@ website # Root directory of your site
       └── hello.md
 ```
 
-However, the <span style={{ color:'var(--secondary-font-color)' }}> last part </span> of the id can be <span style={{ color:'var(--secondary-font-color)' }}> defined </span> by the user in the <span style={{ color:'var(--secondary-font-color)' }}> front matter. </span>
+However, the <Color color='var(--secondary-font-color)'> last part </Color> of the id can be <Color color='var(--secondary-font-color)'> defined </Color> by the user in the <Color color='var(--secondary-font-color)'> front matter. </Color>
 
 For example, if `guide/hello.md`'s content is defined as below, its final id is "guide/part1".
 
@@ -123,15 +123,14 @@ id: part1
 Lorem ipsum
 ```
 
-<span style={{ color: "var(--not-require-but-good-to-know-font-color)" }}>
-  {" "}
-  The ID is used to refer to a document when hand-writing (manually configure) sidebars,
-  or when using docs-related layout components or hooks.{" "}
-</span>
+<Color color="var(--not-require-but-good-to-know-font-color)">
+  The ID is used to refer to a document when hand-writing (manually configure)
+  sidebars, or when using docs-related layout components or hooks.
+</Color>
 
 ### Doc URLs
 
-By default, a document's <span style={{ color:'var(--secondary-font-color)' }}> URL location is its file path <span style={{ color:'var(--primary-font-color)' }}> relative </span> </span> to the docs folder.
+By default, a document's <Color color='var(--secondary-font-color)'> URL location is its file path <Color color='var(--primary-font-color)'> relative </Color> </Color> to the docs folder.
 
 Use the `slug` front matter to change a document's URL.
 

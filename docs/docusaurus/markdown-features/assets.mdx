@@ -5,9 +5,6 @@ tags:
   - tool
 ---
 
-import Tabs from "@theme/Tabs";
-import TabItem from "@theme/TabItem";
-
 # Assets
 
 Sometimes you want to link to assets (e.g. docx files, images...) directly from Markdown files, and it is convenient to co-locate the asset next to the Markdown file using it.
@@ -68,9 +65,9 @@ or
 
 :::note markdown links are always file paths
 
-If you use the <span style={{ color:'var(--secondary-font-color)' }}> Markdown image </span> or <span style={{ color:'var(--secondary-font-color)' }}> link syntax </span>
+If you use the <Color color='var(--secondary-font-color)'> Markdown image </Color> or <Color color='var(--secondary-font-color)'> link syntax </Color>
 
-All asset paths will be resolved as file paths by Docusaurus and <span style={{ color:'var(--primary-font-color)' }}> automatically converted to </span> `require()` calls.
+All asset paths will be resolved as file paths by Docusaurus and <Color color='var(--primary-font-color)'> automatically converted to </Color> `require()` calls.
 
 You don't need to use require() in Markdown unless you use the JSX syntax, which you do have to handle yourself.
 

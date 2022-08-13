@@ -8,7 +8,7 @@ tags:
 # Pages
 
 The `@docusaurus/plugin-content-pages` plugin empowers you to create one-off standalone pages.
-You can use <span style={{ color:'var(--secondary-font-color)' }}> React components </span>, or <span style={{ color:'var(--secondary-font-color)' }}> Markdown </span>.
+You can use <Color color='var(--secondary-font-color)'> React components </Color>, or <Color color='var(--secondary-font-color)'> Markdown </Color>.
 
 :::tip later
 
@@ -55,7 +55,7 @@ Now open [http://localhost:3000/helloReact](http://localhost:3000/helloReact) an
 
 Each page doesn't come with any styling.
 You will need to import the Layout component from `import Layout from "@theme/Layout"`
-and wrap your contents within that component if you want the <span style={{ color:'var(--secondary-font-color)' }}> navbar </span> and/or <span style={{ color:'var(--secondary-font-color)' }}> footer </span> to appear.
+and wrap your contents within that component if you want the <Color color='var(--secondary-font-color)'> navbar </Color> and/or <Color color='var(--secondary-font-color)'> footer </Color> to appear.
 
 <Tabs>
 <TabItem value="withOutLayout" label="Page Without Layout">
@@ -125,7 +125,7 @@ you will still need to manually import the CSS module file within your component
 All JavaScript , TypeScript, Markdown files within the `src/pages/` directory will have corresponding website paths generated for them.
 
 If you want to create reusable components into that directory, use the exclude option (by default, files prefixed with \_, test files(.test.js),
-and files in **tests** directory <span style={{ color:'var(--primary-font-color)' }}> are not turned into pages </span>).
+and files in **tests** directory <Color color='var(--primary-font-color)'> are not turned into pages </Color>).
 
 :::
 
@@ -134,9 +134,9 @@ and files in **tests** directory <span style={{ color:'var(--primary-font-color)
 You may accidentally create multiple pages that are meant to be accessed on the same route.
 
 When this happens, Docusaurus will warn you about duplicate routes
-when you run `yarn start` or `yarn build`, <span style={{ color:'var(--primary-font-color)' }}> but the site will still be built successfully. </span>
+when you run `yarn start` or `yarn build`, <Color color='var(--primary-font-color)'> but the site will still be built successfully. </Color>
 
-The <span style={{ color:'var(--secondary-font-color)' }}> page that was created last will be accessible </span>, but it will override other conflicting pages.
+The <Color color='var(--secondary-font-color)'> page that was created last will be accessible </Color>, but it will override other conflicting pages.
 
 To resolve this issue, you should modify or remove any conflicting routes.
 
