@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkwoof=self.webpackChunkwoof||[]).push([[918],{7990:(e,o,r)=>{r.d(o,{Z:()=>s});var t=r(7294);var c=r(702),l=r(5162),n=r(5488);const s={...c.Z,Tabs:n.Z,TabItem:l.Z,Color:function(e){let{children:o,color:r}=e;return t.createElement("span",{style:{color:r}},o)}}}}]);
