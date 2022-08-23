@@ -1,8 +1,7 @@
 ---
+description: How to use / import assets in markdown files.
 tags:
   - docusaurus
-  - documentation
-  - tool
 ---
 
 # Assets
@@ -63,16 +62,122 @@ or
 [Download this docx using Markdown](./assets/docusaurus-asset-example.docx)
 ```
 
-:::note markdown links are always file paths
+<Admonition type="note" title="markdown links are always file paths">
 
-If you use the <Color color='var(--secondary-font-color)'> Markdown image </Color> or <Color color='var(--secondary-font-color)'> link syntax </Color>
+If you use the <Color color='var(--secondary-font-color)'> Markdown image </Color> `![]()` or <Color color='var(--secondary-font-color)'> link syntax </Color> `[]()`
 
 All asset paths will be resolved as file paths by Docusaurus and <Color color='var(--primary-font-color)'> automatically converted to </Color> `require()` calls.
 
-You don't need to use require() in Markdown unless you use the JSX syntax, which you do have to handle yourself.
+You don't need to use `require()` in Markdown unless you use the JSX syntax, which you do have to handle yourself.
 
-:::
+</Admonition>
 
+## Inline SVGs
+
+Docusaurus supports inlining SVGs out of the box.
+
+```jsx title= showLineNumbers
+import DocusaurusSvg from "./docusaurus.svg";
+
+<DocusaurusSvg />;
+```
+
+### <Color color="var(--not-nesary-for-now-future-font-color)"> Alter SVG </Color>
+
+You can change one of the SVG colors based on the current theme.
+
+```jsx title= showLineNumbers
+import DocusaurusSvg from "./docusaurus.svg";
+
+<DocusaurusSvg className="themedDocusaurus" />;
+```
+
+```css title= showLineNumbers
+[data-theme="light"] .themedDocusaurus [fill="#FFFF50"] {
+  fill: greenyellow;
+}
+
+[data-theme="dark"] .themedDocusaurus [fill="#FFFF50"] {
+  fill: seagreen;
+}
+```
+
+## Theme Images
+
+Docusaurus supports themed images
+
+The ThemedImage component (included in the themes) allows you to <Color color="var(--secondary-font-color)"> switch </Color>
+the <Color color="var(--secondary-font-color)"> image source </Color>
+based on the <Color color="var(--secondary-font-color)"> current theme </Color>.
+
+```jsx title= showLineNumbers
+import ThemedImage from "@theme/ThemedImage";
+
+<ThemedImage
+  alt="Docusaurus themed image"
+  sources={{
+    light: useBaseUrl("/img/docusaurus_light.svg"),
+    dark: useBaseUrl("/img/docusaurus_dark.svg"),
+  }}
+/>;
+```
+
+### GitHub-style themed images
+
+Alternatively you can use Github [image theming approach](https://github.blog/changelog/2021-11-24-specify-theme-context-for-images-in-markdown/) with path fragments.
+
+To toggle the visibility of an image using the path fragment.
+
+```css title=src/css/custom.css showLineNumbers
+[data-theme="light"] img[src$="#gh-dark-mode-only"],
+[data-theme="dark"] img[src$="#gh-light-mode-only"] {
+  display: none;
+}
+```
+
+```markdown title= showLineNumbers
+![Docusaurus themed image](/img/docusaurus_keytar.svg#gh-light-mode-only)
+
+![Docusaurus themed image](/img/docusaurus_speed.svg#gh-dark-mode-only)
+```
+
+For GitHub, it's `#gh-dark-mode-only` and `#gh-light-mode-only` , you can also use your own suffix.
+
+## Static assets
+
+If a Markdown <Color color="var(--secondary-font-color)"> link </Color> or <Color color="var(--secondary-font-color)"> image </Color> has an <Color color="var(--primary-font-color)"> absolute path </Color>,
+the path will be seen as a <Color color="var(--secondary-font-color)"> file path </Color> and will be <Color color="var(--primary-font-color)"> resolved from the static directories </Color>.
+
+For example, if you have configured static directories to be `['public', 'static']`, then for the following image:
+
+```markdown title=foo.md showLineNumbers
+![An image from the static](/img/docusaurus.png)
+```
+
+Docusaurus will try to look for it in both `static/img/docusaurus.png` and `public/img/docusaurus.png`.
+
+The link will then be converted to a `require()` call instead of staying as a URL.
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+
+This is desirable in two regards:
+
+1. You don't have to worry about the base URL, which Docusaurus will take care of when serving the asset;
+1. The image enters Webpack's build pipeline and its name will be appended by a hash, which enables browsers to aggressively cache the image and improves your site's performance.
+
+</Color>
+
+<Admonition type="tip" title="later">
+
+If you intend to write URLs, you can use the `pathname://` protocol to disable automatic asset linking.
+
+```markdown title= showLineNumbers
+![banner](pathname:///img/docusaurus-asset-example-banner.png)
+```
+
+This link will be generated as `<img src="/img/docusaurus-asset-example-banner.png" alt="banner" />`, without any processing or file existence checking.
+
+</Admonition>
 <br />
 
 ---
