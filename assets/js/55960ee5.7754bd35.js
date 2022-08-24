@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwoof=self.webpackChunkwoof||[]).push([[121],{8070:o=>{o.exports=JSON.parse('[{"label":"docusaurus","permalink":"/woof/docs/tags/docusaurus","count":16},{"label":"documentation","permalink":"/woof/docs/tags/documentation","count":13},{"label":"tool","permalink":"/woof/docs/tags/tool","count":13}]')}}]);
