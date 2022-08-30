@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwoof=self.webpackChunkwoof||[]).push([[633],{6399:o=>{o.exports=JSON.parse('{"label":"anki","permalink":"/woof/docs/tags/anki","allTagsPath":"/woof/docs/tags","count":1,"items":[{"id":"tool/anki/index","title":"Anki","description":"Anki is a  program which makes remembering things easy .","permalink":"/woof/docs/tool/anki/"}]}')}}]);
