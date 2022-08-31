@@ -36,6 +36,7 @@
   --not-require-but-good-to-know-font-color: purple;
   --can-not-understand-font-color: rgb(249, 249, 110);
   --not-nesary-for-now-future-font-color: green;
+  --writer-additional-note-font-color: rgb(0, 128, 255);
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
@@ -70,6 +71,7 @@
   --not-require-but-good-to-know-font-color: purple;
   --can-not-understand-font-color: rgb(249, 249, 110);
   --not-nesary-for-now-future-font-color: green;
+  --writer-additional-note-font-color: rgb(0, 128, 255);
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
