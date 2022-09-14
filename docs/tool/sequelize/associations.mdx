@@ -1,0 +1,481 @@
+---
+tags:
+  - sequelize
+---
+
+# Associations
+
+Sequelize supports the standard associations: One-To-One, One-To-Many and Many-To-Many.
+
+To do this, Sequelize provides four types of associations that should be combined to create them:
+
+- The HasOne association
+- The BelongsTo association
+- The HasMany association
+- The BelongsToMany association
+
+## Defining associations
+
+The four association types are defined in a very similar way.
+
+Let's say we have two models, A and B. Telling Sequelize that you want an association between the two needs just a function call:
+
+```javascript title= showLineNumbers
+const A = sequelize.define("A" /* ... */);
+const B = sequelize.define("B" /* ... */);
+
+A.hasOne(B); // A HasOne B
+A.belongsTo(B); // A BelongsTo B
+A.hasMany(B); // A HasMany B
+A.belongsToMany(B, { through: "C" }); // A BelongsToMany B through the junction table C
+```
+
+They all accept an options object as a second parameter ( field `through` is required for `belongsToMany` association).
+
+`A.hasOne(B)` association means that a <Color color="var(--secondary-font-color)"> One-To-One </Color> relationship exists between `A` and `B`, with the <Color color="var(--secondary-font-color)"> foreign key </Color> being <Color color="var(--secondary-font-color)"> defined in </Color> the target model `B`.
+
+`A.belongsTo(B)` association means that a <Color color="var(--secondary-font-color)"> One-To-One </Color> relationship exists between `A` and `B`, with the <Color color="var(--secondary-font-color)"> foreign key </Color> being <Color color="var(--secondary-font-color)"> defined in </Color> the source model `A`.
+
+`A.hasMany(B)` association means that a <Color color="var(--secondary-font-color)"> One-To-Many </Color> relationship exists between `A` and `B`, with the foreign key being defined in the target model `B`.
+
+<Admonition type="note" title="note">
+
+These three calls will cause Sequelize to automatically add foreign keys to the appropriate models (unless they are already present).
+
+</Admonition>
+
+The `A.belongsToMany(B, { through: 'C' })` association means that a Many-To-Many relationship exists between A and B, using table `C` as <Color color="var(--secondary-font-color)"> junction table </Color>,
+which will have the foreign keys (`aId` and `bId`, for example).
+
+Sequelize will automatically create this model C (unless it already exists) and define the appropriate foreign keys on it.
+
+<Admonition type="info" title="info">
+
+When use `belongsToMany` , Sequelize automatically generates a model with the name passed as `through` property if it have not already been defined.
+
+</Admonition>
+
+## One-To-One relationships
+
+### Philosophy
+
+Let's say we have two models, Foo and Bar. We want to establish a One-To-One relationship between Foo and Bar.
+
+We know that in a relational database, this will be done by establishing a foreign key in one of the tables.
+
+So in this case, a very relevant question is: in <Color color="var(--secondary-font-color)"> which table do we want this foreign key to be? </Color>
+
+In principle, both options are a valid way to establish a One-To-One relationship between Foo and Bar.
+
+Can a Foo exist without a Bar? Can a Bar exist without a Foo?
+
+The answers to these questions help figuring out where we want the foreign key column to be.
+
+### Implementation
+
+```javascript title= showLineNumbers
+Foo.hasOne(Bar);
+Bar.belongsTo(Foo);
+```
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+
+Since no option was passed, Sequelize will infer what to do from the names of
+the models. In this case, Sequelize knows that a `fooId` column must be added
+to Bar.
+
+</Color>
+
+This way, calling `Bar.sync()` <Color color="var(--primary-font-color)"> after </Color> the above will yield the following SQL (on PostgreSQL, for example):
+
+```sql title= showLineNumbers
+CREATE TABLE IF NOT EXISTS "foos" (
+  /* ... */
+);
+CREATE TABLE IF NOT EXISTS "bars" (
+  /* ... */
+  "fooId" INTEGER REFERENCES "foos" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+  /* ... */
+);
+```
+
+### Options
+
+## Many-To-Many relationships
+
+### Philosophy
+
+Many-To-Many associations connect one source with multiple targets, while all these targets can in turn be connected to other sources beyond the first.
+
+### Implementation
+
+For this example, we will consider the models Movie and Actor.
+
+One actor may have participated in many movies, and one movie had many actors involved with its production.
+
+The junction table that will keep track of the associations will be called `ActorMovies`, which will contain the foreign keys `movieId` and `actorId`.
+
+```javascript title= showLineNumbers
+const Movie = sequelize.define("Movie", { name: DataTypes.STRING });
+const Actor = sequelize.define("Actor", { name: DataTypes.STRING });
+Movie.belongsToMany(Actor, { through: "ActorMovies" });
+Actor.belongsToMany(Movie, { through: "ActorMovies" });
+```
+
+Since a string was given in the `through` option of the `belongsToMany` call,
+
+Sequelize will <Color color="var(--secondary-font-color)"> automatically create </Color> the `ActorMovies` model
+which will act as the junction model.
+
+For example, in PostgreSQL:
+
+```sql title= showLineNumbers
+CREATE TABLE IF NOT EXISTS "ActorMovies" (
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "MovieId" INTEGER REFERENCES "Movies" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  "ActorId" INTEGER REFERENCES "Actors" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  PRIMARY KEY ("MovieId","ActorId")
+);
+```
+
+Instead of a string, passing a model directly is also supported
+
+In that case the given model will be used as the junction model (and no model will be created automatically).
+
+For example:
+
+```javascript title= showLineNumbers
+const Movie = sequelize.define("Movie", { name: DataTypes.STRING });
+const Actor = sequelize.define("Actor", { name: DataTypes.STRING });
+const ActorMovies = sequelize.define("ActorMovies", {
+  MovieId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Movie, // 'Movies' would also work
+      key: "id",
+    },
+  },
+  ActorId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Actor, // 'Actors' would also work
+      key: "id",
+    },
+  },
+});
+Movie.belongsToMany(Actor, { through: ActorMovies });
+Actor.belongsToMany(Movie, { through: ActorMovies });
+```
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+
+The above yields the following SQL in PostgreSQL, which is equivalent to the one shown above:
+
+</Color>
+
+```sql title= showLineNumbers
+CREATE TABLE IF NOT EXISTS "ActorMovies" (
+  "MovieId" INTEGER NOT NULL REFERENCES "Movies" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  "ActorId" INTEGER NOT NULL REFERENCES "Actors" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
+  UNIQUE ("MovieId", "ActorId"),     -- Note: Sequelize generated this UNIQUE constraint but
+  PRIMARY KEY ("MovieId","ActorId")  -- it is irrelevant since it's also a PRIMARY KEY
+);
+```
+
+### Options
+
+The defaults for both `ON UPDATE` and `ON DELETE` are `CASCADE` for Many-To-Many relationships.
+
+Belongs-To-Many creates a unique key on through model. This unique key name can be overridden using uniqueKey option. To prevent creating this unique key, use the unique: false option.
+
+```javascript title= showLineNumbers
+Project.belongsToMany(User, {
+  through: UserProjects,
+  uniqueKey: "my_custom_unique",
+});
+```
+
+## Basics of queries involving associations
+
+Consider an example in which we have `Ships` and `Captains`, and a one-to-one relationship between them.
+
+We will allow `null` on foreign keys (the default), meaning that a Ship can exist without a Captain and vice-versa.
+
+```javascript title= showLineNumbers
+// This is the setup of our models for the examples below
+const Ship = sequelize.define(
+  "ship",
+  {
+    name: DataTypes.TEXT,
+    crewCapacity: DataTypes.INTEGER,
+    amountOfSails: DataTypes.INTEGER,
+  },
+  { timestamps: false }
+);
+const Captain = sequelize.define(
+  "captain",
+  {
+    name: DataTypes.TEXT,
+    skillLevel: {
+      type: DataTypes.INTEGER,
+      validate: { min: 1, max: 10 },
+    },
+  },
+  { timestamps: false }
+);
+Captain.hasOne(Ship);
+Ship.belongsTo(Captain);
+```
+
+### Fetching associations - Lazy Loading
+
+Lazy Loading refers to the technique of fetching the associated data only when you really want it.
+
+<Admonition type="info" icon="" title="//\\">
+
+Querying association only when it s needed. ( Querying `A` then use `bId` in A to query `B` )
+
+</Admonition>
+
+Lazy Loading example:
+
+```javascript title= showLineNumbers
+const awesomeCaptain = await Captain.findOne({
+  where: {
+    name: "Jack Sparrow",
+  },
+});
+// Do stuff with the fetched captain
+console.log("Name:", awesomeCaptain.name);
+console.log("Skill Level:", awesomeCaptain.skillLevel);
+// Now we want information about his ship!
+const hisShip = await awesomeCaptain.getShip();
+// Do stuff with the ship
+console.log("Ship Name:", hisShip.name);
+console.log("Amount of Sails:", hisShip.amountOfSails);
+```
+
+In the example above, we made <Color color="var(--primary-font-color)"> two </Color> <Color color="var(--secondary-font-color)"> queries </Color>,
+only fetching the associated ship when we wanted to use it.
+
+<Admonition type="info" title="info">
+
+`getShip()` instance method used above is one of the methods Sequelize <Color color="var(--secondary-font-color)"> automatically adds </Color> to `Captain` instances.
+
+</Admonition>
+
+### Fetching associations - Eager Loading
+
+Eager Loading, on the other hand, refers to the technique of <Color color="var(--secondary-font-color)"> fetching everything </Color> at once, <Color color="var(--secondary-font-color)"> since the beginning </Color>, with a larger query.
+
+<Admonition type="info" icon="" title="//\\">
+
+Querying all associations at once. (`JOIN`)
+
+</Admonition>
+
+Examples:
+
+```javascript title= showLineNumbers
+const awesomeCaptain = await Captain.findOne({
+  where: {
+    name: "Jack Sparrow",
+  },
+  include: Ship,
+});
+// Now the ship comes with it
+console.log("Name:", awesomeCaptain.name);
+console.log("Skill Level:", awesomeCaptain.skillLevel);
+console.log("Ship Name:", awesomeCaptain.ship.name);
+console.log("Amount of Sails:", awesomeCaptain.ship.amountOfSails);
+```
+
+Eager Loading is performed in Sequelize by using the `include` option.
+
+Here <Color color="var(--primary-font-color)"> only one </Color> query <Color color="var(--secondary-font-color)"> was performed </Color> to the database (which brings the associated data along with the instance).
+
+<Admonition type="tip" title="later">
+
+More details on [Eager Loading](https://sequelize.org/docs/v6/advanced-association-concepts/eager-loading/)
+
+</Admonition>
+
+### Creating, updating and deleting
+
+For creating, updating and deleting, you can either:
+
+- use the standard model queries directly:
+
+```javascript title= showLineNumbers
+// Example: creating an associated model using the standard methods
+Bar.create({
+  name: "My Bar",
+  fooId: 5,
+});
+// This creates a Bar belonging to the Foo of ID 5 (since fooId is
+// a regular column, after all). Nothing very clever going on here.
+```
+
+- use the [special methods/mixins](#special-methods-mixins) available for associated models, which are explained later on this page.
+
+<Admonition type="caution" title="caution">
+
+The `save()` instance method is not aware of associations.
+
+In other words, if you change a value from a child object that was eager loaded along a parent object, <Color color="var(--secondary-font-color)"> calling </Color> `save()` <Color color="var(--secondary-font-color)"> on </Color> the <Color color="var(--secondary-font-color)"> parent </Color> will <Color color="var(--primary-font-color)"> completely ignore the change </Color> that happened <Color color="var(--secondary-font-color)"> on the child </Color>.
+
+</Admonition>
+
+## Association Aliases & Custom Foreign Keys
+
+All the above examples, Sequelize automatically defined the foreign key names.
+
+For example, in the Ship and Captain example, Sequelize automatically defined a `captainId` field on the Ship model.
+
+However, it is easy to specify a custom foreign key.
+
+```javascript title= showLineNumbers
+const Ship = sequelize.define(
+  "ship",
+  { name: DataTypes.TEXT },
+  { timestamps: false }
+);
+const Captain = sequelize.define(
+  "captain",
+  { name: DataTypes.TEXT },
+  { timestamps: false }
+);
+```
+
+There are three ways to specify a different name for the foreign key:
+
+- By providing the foreign key name directly
+- By defining an Alias
+- By doing both things
+
+### Autogenerated foreign key (default)
+
+By using simply `Ship.belongsTo(Captain)`, sequelize will generate the foreign key name automatically:
+
+```javascript title=
+Ship.belongsTo(Captain);
+```
+
+This creates the `captainId` foreign key <Color color="var(--primary-font-color)"> in `Ship` </Color>.
+
+Eager Loading is done by passing the model to `include`:
+
+```javascript title= showLineNumbers
+Ship.findAll({ include: Captain });
+```
+
+Or by providing the associated model name:
+
+```javascript title=
+Ship.findAll({ include: "captain" });
+```
+
+Also, instances obtain a `getCaptain()` method for Lazy Loading:
+
+```javascript title= showLineNumbers
+const ship = Ship.findOne();
+await ship.getCaptain();
+```
+
+### Providing the foreign key name directly
+
+```javascript title=
+Ship.belongsTo(Captain, { foreignKey: "bossId" });
+```
+
+This creates the `bossId` foreign key <Color color="var(--primary-font-color)"> in `Ship`</Color>.
+
+### Defining an Alias
+
+Defining an Alias is more powerful than simply specifying a custom name for the foreign key.
+
+```javascript title=
+Ship.belongsTo(Captain, { as: "leader" });
+```
+
+This creates the `leaderId` foreign key <Color color="var(--primary-font-color)"> in `Ship` </Color>.
+
+<Admonition type="caution" title="caution">
+
+Eager Loading <Color color="var(--primary-font-color)"> no longer works </Color> by passing the model to `include`:
+
+```javascript title=
+//highlight-error-next-line
+Ship.findAll({ include: Captain }); // Throws an error
+```
+
+</Admonition>
+
+Instead, you have to pass the alias:
+
+```javascript title=
+Ship.findAll({ include: "leader" });
+```
+
+Or you can <Color color="var(--secondary-font-color)"> pass an object </Color> specifying the model and alias:
+
+```javascript title= showLineNumbers
+Ship.findAll({
+  include: {
+    model: Captain,
+    as: "leader",
+  },
+});
+```
+
+Aliases are especially useful when you need to define two different associations between the same models.
+
+<Admonition type="info" icon="" title="//\\">
+
+Multiple primary key of parent table stored in different column inside child table.
+
+</Admonition>
+
+For example, if we have the models `Mail` and `Person`, `Mail` table may store multiple `Person` pk to represent the sender and receiver of the `Mail`.
+
+In this case we must use an alias for each association, since otherwise a call like `mail.getPerson()` would be ambiguous.
+
+With the sender and receiver aliases, we would have the two methods available and working: `mail.getSender()` and `mail.getReceiver()`, both of them returning a `Promise<Person>`.
+
+<Admonition type="tip" title="tip">
+
+When defining an alias for a `hasOne` or `belongsTo` association,
+you should use the <Color color="var(--secondary-font-color)"> singular form </Color> of a word (such as `leader`, in the example above).
+
+On the other hand, when defining an alias for `hasMany` and `belongsToMany`,
+you should use the <Color color="var(--secondary-font-color)"> plural form </Color>.
+
+</Admonition>
+
+<Admonition type="tip" title="later">
+
+Defining aliases for Many-to-Many relationships (with belongsToMany) is covered in the [Advanced Many-to-Many Associations guide](https://sequelize.org/docs/v6/advanced-association-concepts/advanced-many-to-many/).
+
+</Admonition>
+
+### Doing both alias and custom foreign key
+
+We can define and alias and also directly define the foreign key:
+
+```javascript title=
+Ship.belongsTo(Captain, { as: "leader", foreignKey: "bossId" });
+```
+
+This creates the `bossId` foreign key <Color color="var(--primary-font-color)"> in `Ship` </Color>.
+
+Since an alias was defined, eager Loading doesn't work by simply passing the model to `include`:
+
+```javascript title=
+//highlight-error-next-line
+Ship.findAll({ include: Captain }); // Throws an error
+```
+
+## Special methods/mixins added to instances {#special-methods-mixins}
