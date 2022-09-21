@@ -1,0 +1,146 @@
+---
+tags:
+  - visual studio code
+---
+
+# Developing inside a container
+
+The Visual Studio Code [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) lets you use a Docker container as a full-featured development environment.
+It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's <Color color="var(--secondary-font-color)"> full feature </Color> set.
+
+A [`devcontainer.json` file](#dev-container-json) in your project tells VS Code how to access (or create) a development container.
+
+This container can be used to run an application or to separate tools, libraries, or runtimes needed for working with a codebase.
+
+Workspace files are mounted from the local file system or copied or cloned into the container.
+
+Extensions are installed and run inside the container.
+
+## System requirements
+
+### Local / Remote Host:
+
+- Windows: Docker Desktop 2.0+ on Windows 10 Pro/Enterprise. Windows 10 Home (2004+) requires Docker Desktop 2.3+ and the WSL 2 back-end. (Docker Toolbox is not supported. Windows container images are not supported.)
+- macOS: Docker Desktop 2.0+.
+- Linux: Docker CE/EE 18.06+ and Docker Compose 1.21+. (The Ubuntu snap package is not supported.)
+- Remote hosts: 1 GB RAM is required, but at least 2 GB RAM and a 2-core CPU is recommended.
+
+### Containers:
+
+- x86_64 / ARMv7l (AArch32) / ARMv8l (AArch64) Debian 9+, Ubuntu 16.04+, CentOS / RHEL 7+
+- x86_64 Alpine Linux 3.9+
+
+## Installation
+
+1. Install Docker
+1. Install Visual Studio code
+1. Install [Remote Development extension pack](https://aka.ms/vscode-remote/download/extension).
+
+## Working with Containers
+
+The Remote - Containers extension supports two primary operating models:
+
+You can use a container as your full-time development environment.
+You can attach to a running container to inspect it.
+
+## Open a Git repository or GitHub PR in an isolated container volume
+
+While you can open a locally cloned repository in a container,
+you may want to work with an isolated copy of a repository for a PR review or to investigate another branch without impacting your work.
+
+Repository Containers use isolated, local Docker volumes instead of binding to the local filesystem.
+
+### Instructions
+
+1. Start VS Code and run `Remote-Containers: Clone Repository in Container Volume...` from the Command Palette
+1. Enter a Git URI, a <Color color="var(--primary-font-color)"> GitHub </Color> branch URL, a <Color color="var(--primary-font-color)"> GitHub </Color> PR URL
+   or on of the ["try" repositories](https://github.com/Microsoft/vscode-dev-containers) in the input box that appears and press Enter.
+   1. If you choose a <Color color="var(--secondary-font-color)"> private repository </Color>, you may want to setup a credential manager or add your SSH keys to your SSH agent. See [Sharing Git credentials with your container](#sharing-git-credentials-with-your-container).
+1. If your repository does not have a `.devcontainer/devcontainer.json` file in it, you'll be asked to <Color color="var(--secondary-font-color)"> pick a starting point </Color> from a filterable list or an existing Dockerfile or Docker Compose file (if one exists).
+   ![container starting point](../assets/container-starting-point.png)
+1. The VS Code window (instance) will reload, clone the source code, and start building the dev container. A progress notification provides status updates.
+   ![](../assets/dev-container-progress.png)
+1. After the build completes, VS Code will automatically connect to the container. You can now work with the repository source code in this independent environment as you would if you had cloned the code locally.
+
+<Admonition type="note" title="note">
+
+If you pasted in a GitHub pull request URL in step 2, the PR will be automatically checked out and the [GitHub Pull Requests extension](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) will be installed in the container.
+
+</Admonition>
+
+<Admonition type="info" title="info">
+
+If the container fails to come up due to something like a Docker build error,
+you can select Reopen in Recovery Container in the dialog that appears to go into a "recovery container" that allows you to edit your Dockerfile or other content.
+
+This opens the docker volume with the cloned repository in a minimal container and shows you the creation log.
+
+Once you are done fixing, use Reopen in Container to retry.
+
+</Admonition>
+
+## Sharing Git credentials with your container
+
+The Remote - Containers extension provides out of box support for using local Git credentials from inside a container.
+
+### Using a credential helper
+
+If you use HTTPS to clone your repositories and have a [credential helper configured](https://help.github.com/articles/caching-your-github-password-in-git) in your host system, no further setup is required.
+
+Credentials you've entered on your host system will be reused in the container and vice versa.
+
+### Using SSH keys
+
+The extension will automatically forward your local SSH agent <Color color="var(--secondary-font-color)"> if one is running </Color>.
+
+You can add your local SSH keys to the agent if it is running by using the `ssh-add` command.
+
+For example, run this from a terminal or PowerShell:
+
+```bash title=
+ssh-add $HOME/.ssh/github_rsa
+```
+
+<Admonition type="info" title="info">
+
+On Windows and Linux, you may get an error because the agent is not running (macOS typically has it running by default). Follow these steps to resolve the problem:
+
+</Admonition>
+
+<details>
+
+<summary> Running SSH Agent in the background </summary>
+
+macOS: typically has it running by default
+
+Linux:
+
+First, start the SSH Agent in the background by running the following in a terminal:
+
+```bash title=
+eval "$(ssh-agent -s)"
+```
+
+Then add these lines to your `~/.bash_profile` or `~/.zprofile` (for Zsh) so it starts on login:
+
+```bash title=
+if [ -z "$SSH_AUTH_SOCK" ]; then
+   # Check for a currently running instance of the agent
+   RUNNING_AGENT="`ps -ax | grep 'ssh-agent -s' | grep -v grep | wc -l | tr -d '[:space:]'`"
+   if [ "$RUNNING_AGENT" = "0" ]; then
+        # Launch a new instance of the agent
+        ssh-agent -s &> $HOME/.ssh/ssh-agent
+   fi
+   eval `cat $HOME/.ssh/ssh-agent`
+fi
+```
+
+</details>
+
+<br />
+
+---
+
+# Sources
+
+- https://code.visualstudio.com/docs/remote/containers
