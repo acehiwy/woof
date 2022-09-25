@@ -1,0 +1,89 @@
+---
+sidebar_position: 3000
+tags:
+  - rabbitmq
+---
+
+# AMQP 0-9-1
+
+## What is AMQP 0-9-1?
+
+AMQP 0-9-1 (Advanced Message Queuing Protocol) is a messaging protocol that enables conforming client applications to communicate with conforming messaging middleware brokers.
+
+Messaging brokers receive messages from [publishers](https://www.rabbitmq.com/publishers.html) (applications that publish them, also known as producers)
+and route them to [consumers](https://www.rabbitmq.com/consumers.html) (applications that process them).
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+  
+Since it is a network protocol, the publishers, consumers and the broker can all reside on different machines.
+
+</Color>
+
+## AMQP 0-9-1 Model in Brief
+
+Messages are published to exchanges<Color color="var(--not-require-but-good-to-know-font-color)"> , which are often compared to post offices or mailboxes. </Color>
+
+Exchanges then distribute <Color color="var(--primary-font-color)"> message copies </Color> to queue<Color color="var(--primary-font-color)">(s)</Color> using rules called <Color color="var(--secondary-font-color)"> bindings </Color>.
+
+Then the broker either deliver messages to consumers subscribed to queues, or consumers fetch/pull messages from queues on demand.
+
+![Hello World Example Routing](assets/hello-world-example-routing.png)
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+
+When publishing a message, publishers may specify various message attributes (message meta-data).
+
+Some of this meta-data may be used by the broker, however, the rest of it is completely opaque to the broker and is only used by applications that receive the message.
+
+ </Color>
+
+### Message acknowledgements
+
+Networks are unreliable and applications may <Color color="var(--secondary-font-color)"> fail to process messages </Color> therefore the AMQP 0-9-1 model has a notion of message acknowledgements
+
+&#8203;<Color color="var(--secondary-font-color)">When a message is delivered to a consumer the consumer notifies the broker</Color>, either automatically or as soon as the application developer chooses to do so.
+
+When message acknowledgements are in use, a <Color color="var(--secondary-font-color)"> broker will only completely remove a message from a queue when it receives a notification/acknowledgements for that message </Color> (or group of messages).
+
+### Unroutable messages
+
+In certain situations, for example, <Color color="var(--secondary-font-color)"> when a message cannot be routed </Color>, messages may be
+
+- returned to publishers
+- dropped
+- placed into a so-called <Color color="var(--secondary-font-color)"> dead letter queue </Color>, if the broker implements an extension.
+
+&#8203;<Color color="var(--primary-font-color)"> Publishers </Color> <Color color="var(--secondary-font-color)"> choose </Color> how to handle situations like this by publishing messages using certain parameters.
+
+## AMQP 0-9-1 is a Programmable Protocol
+
+AMQP 0-9-1 is a <Color color="var(--secondary-font-color)"> programmable </Color> protocol in the sense that AMQP 0-9-1 <Color color="var(--secondary-font-color)"> entities </Color> and <Color color="var(--secondary-font-color)"> routing schemes </Color> are primarily <Color color="var(--primary-font-color)"> defined by applications </Color> themselves, not a broker administrator.
+
+<Admonition type="caution" title="????" icon="">
+
+Accordingly, provision is made for protocol operations that declare queues and exchanges, define bindings between them, subscribe to queues and so on.
+
+</Admonition>
+
+This gives application developers a lot of freedom but also requires them to be aware of potential definition conflicts. In practice, definition conflicts are rare and often indicate a misconfiguration.
+
+&#8203;<Color color="var(--primary-font-color)"> Applications </Color> <Color color="var(--secondary-font-color)"> declare </Color> the AMQP 0-9-1 <Color color="var(--secondary-font-color)"> entities </Color> that they need, define necessary routing schemes and may choose to delete AMQP 0-9-1 entities when they are no longer used.
+
+## Exchanges
+
+Exchanges are AMQP 0-9-1 <Color color="var(--secondary-font-color)"> entities where messages </Color> <Color color="var(--primary-font-color)"> are sent to </Color>.
+
+Exchanges take a message and <Color color="var(--secondary-font-color)"> route it into zero or more queues </Color>.
+
+The routing algorithm used depends on the <Color color="var(--secondary-font-color)"> exchange type </Color> and rules called <Color color="var(--secondary-font-color)"> bindings </Color>.
+
+AMQP 0-9-1 brokers provide four exchange types:
+
+Exchange type Default pre-declared names
+
+| Exchange type    | Default pre-declared names              |
+| ---------------- | --------------------------------------- |
+| Direct exchange  | (Empty string) and amq.direct           |
+| Fanout exchange  | amq.fanout                              |
+| Topic exchange   | amq.topic                               |
+| Headers exchange | amq.match (and amq.headers in RabbitMQ) |
