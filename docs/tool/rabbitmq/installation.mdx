@@ -1,0 +1,55 @@
+---
+sidebar_position: 1000
+tags:
+  - rabbitmq
+---
+
+# Installation
+
+## Docker
+
+RabbitMQ officail image : https://registry.hub.docker.com/_/rabbitmq/
+
+If you also want to use RabbitMQ [Management Plugin](https://www.rabbitmq.com/management.html), choose image that have `management` tag
+
+### Running RabbitMQ instance
+
+<Color color="var(--not-require-but-good-to-know-font-color)">
+
+One of the important things to note about RabbitMQ is that it stores data based on what it calls the "Node Name", which defaults to the hostname. What this means for usage in Docker is that we should specify -h/--hostname explicitly for each daemon so that we don't get a random hostname and can keep track of our data:
+
+</Color>
+
+```bash title=
+docker run -d --hostname <host name> --name <container name> rabbitmq
+```
+
+#### Running with docker volume
+
+```bash title=
+docker run -d --hostname <host name> --name <container name> -v <volume name>:/var/lib/rabbitmq/ rabbitmq
+```
+
+<Admonition type="note" title="note">
+
+Default port for RabbitMQ instance is `5672`
+
+</Admonition>
+
+<Admonition type="note" title="note">
+
+Default port for RabbitMQ management Plugin web is `15672`
+
+</Admonition>
+
+## SDK client and tools
+
+https://www.rabbitmq.com/devtools.html
+
+<br />
+
+---
+
+# Sources
+
+- https://www.rabbitmq.com/download.html
